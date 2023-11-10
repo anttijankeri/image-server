@@ -16,7 +16,7 @@ const DateData = z.date();
 
 const DateDataArray = z.date().array();
 
-const MAX_FILE_SIZE = 5000000;
+const MAX_FILE_SIZE = 5000000; // Change as necessary to accomodate your max file size for images
 const ACCEPTED_IMAGE_TYPES = [
   "image/jpeg",
   "image/jpg",
