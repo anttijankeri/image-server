@@ -11,3 +11,37 @@ The src/config.ts contains all the user customization for the repo. Use the comm
 - basic setup
 - all API calls
 - everything else
+
+### API CALLS
+
+**AUTHENTICATION**
+- Log in
+- Passive authentication middleware
+
+**USERS**
+- Create user
+- Delete user
+- Update user
+
+**OBJECTS**
+- List all user's objects
+- Filter user's objects
+- Read single object
+- Add single object
+- Delete single object
+- Update single object
+
+**IMAGES**
+- List all object's images
+- Read single image
+- Add single image
+- Delete single image
+- Update single image
+
+**DATA-EXPORT**
+- Get all user's objects and images
+- Get all user's objects and images filtered
+
+**DATA-SHARE**
+- Read single object (no auth)
+- Read single image (no auth)
