@@ -1,6 +1,6 @@
 {
-  "name": "image-database",
-  "version": "0.0.0",
+  "name": "image-server",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "nodemon ./src/bin/www.ts",
