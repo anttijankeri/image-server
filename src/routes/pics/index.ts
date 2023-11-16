@@ -6,10 +6,6 @@ router.get("/", (req, res) => {
   res.send("COOL GET");
 });
 
-router.get("/search", (req, res) => {
-  res.send("COOL SEARCH");
-});
-
 router.get("/:id", (req, res) => {
   res.send("COOL ID");
 });

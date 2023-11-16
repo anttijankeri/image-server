@@ -2,6 +2,8 @@ import * as dataTypes from "./data_types";
 import z from "zod";
 
 export const REGISTRATION_ALLOWED = true; // Use to disable registration after creating your own username for fully private apps
+export const SHARING_ALLOWED = true; // Use to disable sharing of images for unauthenticated users
+
 export const DataObjectSchema = z
   .object({
     // ADD YOUR OWN DATA TYPES HERE
