@@ -9,11 +9,11 @@ import dataShare from "./dataShare";
 
 const router = express.Router();
 
+router.use("/data-share", dataShare);
 router.use("/auth", auth);
 router.use("/users", users);
 router.use("/objects", objects);
 router.use("/images", images);
 router.use("/data-export", dataExport);
-router.use("/data-share", dataShare);
 
 export default router;
