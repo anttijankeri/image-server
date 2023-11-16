@@ -2,6 +2,10 @@ import express from "express";
 
 const router = express.Router();
 
+router.get("/:id", (req, res) => {
+  res.send("COOL ID");
+});
+
 router.post("/", (req, res) => {
   res.send("COOL POST");
 });

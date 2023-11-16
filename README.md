@@ -22,6 +22,7 @@ The src/config.ts contains all the user customization for the repo. Use the comm
 
 **USERS**
 
+- Get user
 - Create user
 - Delete user
 - Update user
