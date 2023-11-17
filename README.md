@@ -1,6 +1,6 @@
-# object-server
+# object-image-server
 
-This repo is used to fetch data from the [anttijankeri/object-database](https://github.com/anttijankeri/object-database) and send it on to the front end [anttijankeri/plant-object-website.](https://github.com/anttijankeri/plant-object-website) The user should be authenticated before fetching data.
+This repo is used to fetch data from the [anttijankeri/object-image-database](https://github.com/anttijankeri/object-image-database) and send it on to the front end [anttijankeri/plant-collection-website.](https://github.com/anttijankeri/plant-collection-website) The user should be authenticated before fetching data.
 
 ## CONFIG
 
