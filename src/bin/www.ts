@@ -1,37 +1,33 @@
 #!/usr/bin/env node
 
-/**
- * Module dependencies.
- */
-
 import app from "../app";
-import debug from "debug";
+// import debug from "debug";
 import { createServer } from "http";
+import { connectToDbs } from "../db";
 
-/**
- * Get port from environment and store in Express.
- */
+const connect = async () => {
+  try {
+    await connectToDbs();
+  } catch (error) {
+    console.log((error as Error).message);
+    process.exit();
+  }
+};
 
 const port = normalizePort(process.env.PORT || "3000");
 app.set("port", port);
 
-/**
- * Create HTTP server.
- */
-
 const server = createServer(app);
 
-/**
- * Listen on provided port, on all network interfaces.
- */
+const main = async () => {
+  connect();
 
-server.listen(port);
-server.on("error", onError);
-server.on("listening", onListening);
+  server.listen(port);
+  server.on("error", onError);
+  server.on("listening", onListening);
+};
 
-/**
- * Normalize a port into a number, string, or false.
- */
+main();
 
 function normalizePort(val: string) {
   const port = parseInt(val, 10);
@@ -48,10 +44,6 @@ function normalizePort(val: string) {
 
   return false;
 }
-
-/**
- * Event listener for HTTP server "error" event.
- */
 
 function onError(error: { syscall: string; code: unknown }) {
   if (error.syscall !== "listen") {
@@ -75,12 +67,8 @@ function onError(error: { syscall: string; code: unknown }) {
   }
 }
 
-/**
- * Event listener for HTTP server "listening" event.
- */
-
 function onListening() {
   const addr = server.address();
   const bind = typeof addr === "string" ? "pipe " + addr : "port " + addr?.port;
-  debug("Listening on " + bind);
+  console.log("Listening on " + bind);
 }
