@@ -9,6 +9,7 @@ let client;
 
 export const connectToDbs = async () => {
   const uri = process.env.URI;
+  console.log(uri);
   client = new MongoClient(uri as string, {
     serverApi: {
       version: ServerApiVersion.v1,
