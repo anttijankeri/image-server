@@ -1,7 +1,10 @@
-import { DataObject, DataObjectSchema } from "../config";
+import { DataObjectSchema } from "../config";
+import z from "zod";
 
-const validateData = (data: DataObject) => {
+export const DataObjectSchemaStrict = DataObjectSchema.strict();
+
+export type DataObject = z.infer<typeof DataObjectSchemaStrict>;
+
+export const validateData = (data: DataObject) => {
   return DataObjectSchema.safeParse(data).success;
 };
-
-export default validateData;

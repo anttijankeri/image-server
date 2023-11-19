@@ -37,7 +37,3 @@ export const DataObjectSchema = z.object({
   // -----------------------------------
   // ^^^^ DATATYPES ABOVE THIS LINE ^^^^
 });
-
-export const DataObjectSchemaStrict = DataObjectSchema.strict();
-
-export type DataObject = z.infer<typeof DataObjectSchemaStrict>;
