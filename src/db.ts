@@ -8,8 +8,8 @@ let imagesDb: Db;
 let client;
 
 export const connectToDbs = async () => {
-  const { URI } = process.env;
-  client = new MongoClient(URI as string, {
+  const uri = process.env.URI;
+  client = new MongoClient(uri as string, {
     serverApi: {
       version: ServerApiVersion.v1,
       strict: true,
