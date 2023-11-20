@@ -1,5 +1,6 @@
 import express from "express";
 import { getImagesDb } from "../db";
+import { ObjectId } from "mongodb";
 
 const router = express.Router();
 
@@ -13,8 +14,12 @@ router.get("/", async (req, res) => {
   res.json(data);
 });
 
-router.get("/:id", (req, res) => {
-  res.send("COOL ID");
+router.get("/:id", async (req, res) => {
+  const db = getImagesDb();
+  const data = await db
+    .collection("Test_images")
+    .findOne({ _id: new ObjectId(req.params.id) });
+  res.json(data);
 });
 
 router.post("/", (req, res) => {
