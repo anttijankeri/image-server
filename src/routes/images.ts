@@ -63,13 +63,12 @@ router.delete("/:id", async (req, res) => {
 
 router.patch("/:id", async (req, res) => {
   const body = req.body;
-  const updateObject = { $set: body };
-
   const validate = validateImagePartial(body);
   if (!validate.success) {
     return res.status(400).json(validate.error);
   }
 
+  const updateObject = { $set: body };
   const db = getImagesDb();
   const attempt = await db
     .collection("Test_images")
