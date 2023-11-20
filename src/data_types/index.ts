@@ -33,18 +33,27 @@ const ImageFile = z
     "Only .jpg, .jpeg, .png and .webp formats are supported."
   );
 
-const ImageData = z.object({
-  imageFile: ImageFile.optional(),
-  imageLink: StringData,
-  shared: BooleanData,
-});
+const ImageData = z
+  .object({
+    imageFile: ImageFile,
+    shared: BooleanData,
+    userText: StringData,
+    userGroup: StringData,
+    objectLink: StringData,
+    dateAdded: DateData,
+  })
+  .strict();
 
-const ImageDataArray = ImageData.array();
+const ImageId = z.string();
 
-const DiaryEvent = z.object({
-  date: DateData,
-  note: StringData,
-});
+const ImageIdArray = ImageId.array();
+
+const DiaryEvent = z
+  .object({
+    date: DateData,
+    note: StringData,
+  })
+  .strict();
 
 const DiaryDataArray = DiaryEvent.array();
 
@@ -58,7 +67,8 @@ export {
   DateData,
   DateDataArray,
   ImageData,
-  ImageDataArray,
+  ImageId,
+  ImageIdArray,
   DiaryEvent,
   DiaryDataArray,
 };

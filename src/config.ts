@@ -4,7 +4,7 @@ import z from "zod";
 export const REGISTRATION_ALLOWED = true; // Use to disable registration after creating your own username for fully private apps
 export const SHARING_ALLOWED = true; // Use to disable sharing of images for unauthenticated users
 
-export const DataObjectSchema = z.object({
+export const ConfigObjectSchema = z.object({
   // ADD YOUR OWN DATA TYPES HERE
   // USE TYPES IN DATA_TYPES/INDEX.TS
   // VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVvV
@@ -30,9 +30,8 @@ export const DataObjectSchema = z.object({
   dateLastFlower: dataTypes.DateData,
   dateRemoved: dataTypes.DateData,
 
-  images: dataTypes.ImageDataArray,
+  images: dataTypes.ImageIdArray,
   events: dataTypes.DiaryDataArray,
-  shared: dataTypes.BooleanDataArray,
 
   // -----------------------------------
   // ^^^^ DATATYPES ABOVE THIS LINE ^^^^
