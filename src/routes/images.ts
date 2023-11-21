@@ -2,6 +2,7 @@ import express from "express";
 import { getImagesDb } from "../db";
 import { ObjectId } from "mongodb";
 import { validateImage, validateImagePartial } from "../data_types/validation";
+import { fetchImage, postImage } from "../fileServer/apiCalls";
 
 const router = express.Router();
 
@@ -34,14 +35,31 @@ router.get("/:id", async (req, res) => {
   res.status(404).send("Not found");
 });
 
+router.get("/file/:id", async (req, res) => {
+  const data = await fetchImage(req.params.id);
+  if (data.error) {
+    return res.status(404).send("Not found");
+  }
+
+  res.json((data.image as Response).body);
+});
+
 router.post("/", async (req, res) => {
   const body = req.body;
-  body.dateAdded = new Date();
 
   const validate = validateImage(body);
   if (!validate.success) {
     return res.status(400).json(validate.error);
   }
+
+  const postFile = await postImage(body.imageFile);
+
+  if (postFile.error) {
+    return res.status(500).send("Something blew up!");
+  }
+
+  body.filePath = postFile.filePath;
+  delete body.imageFile;
 
   const db = getImagesDb();
   await db.collection("Test_images").insertOne(body);
