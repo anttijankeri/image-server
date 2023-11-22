@@ -1,26 +1,38 @@
 import express from "express";
 import { SHARING_ALLOWED } from "../config";
+import { getImagesDb, getObjectsDb } from "../db";
+import { ObjectId } from "mongodb";
 
 const router = express.Router();
 
-const isAllowed = () => {
-  return SHARING_ALLOWED;
+const isAllowed = (shared: boolean) => {
+  return SHARING_ALLOWED && shared;
 };
 
-router.get("/objects/:id", (req, res) => {
-  if (!isAllowed()) {
-    res.status(403).send();
+router.get("/objects/:id", async (req, res) => {
+  const db = getObjectsDb();
+  const data = await db
+    .collection("Test_objects")
+    .findOne({ _id: new ObjectId(req.params.id) });
+
+  if (data && isAllowed(data.shared)) {
+    return res.json(data);
   }
 
-  res.send("COOL OBJECT");
+  res.status(404).send("Not found");
 });
 
-router.get("/images/:id", (req, res) => {
-  if (!isAllowed()) {
-    res.status(403).send();
+router.get("/images/:id", async (req, res) => {
+  const db = getImagesDb();
+  const data = await db
+    .collection("Test_images")
+    .findOne({ _id: new ObjectId(req.params.id) });
+
+  if (data && isAllowed(data.shared)) {
+    return res.json(data);
   }
 
-  res.send("COOL IMAGE");
+  res.status(404).send("Not found");
 });
 
 export default router;
