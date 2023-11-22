@@ -2,7 +2,7 @@ import express from "express";
 import { getImagesDb } from "../db";
 import { ObjectId } from "mongodb";
 import { validateImage, validateImagePartial } from "../data_types/validation";
-import { fetchImage, postImage } from "../fileServer/apiCalls";
+import { fetchImage, postImage, deleteImage } from "../fileServer/apiCalls";
 
 const router = express.Router();
 
@@ -41,7 +41,7 @@ router.get("/file/:id", async (req, res) => {
     return res.status(404).send("Not found");
   }
 
-  res.json((data.image as Response).body);
+  res.json((data.result as Response).body);
 });
 
 router.post("/", async (req, res) => {
@@ -77,6 +77,15 @@ router.delete("/:id", async (req, res) => {
   }
 
   res.status(404).send("Not found");
+});
+
+router.delete("/file/:id", async (req, res) => {
+  const attempt = await deleteImage(req.params.id);
+  if (attempt.error) {
+    return res.status(404).send("Not found");
+  }
+
+  res.json((attempt.result as Response).body);
 });
 
 router.patch("/:id", async (req, res) => {
