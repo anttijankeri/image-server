@@ -58,6 +58,22 @@ const DiaryEvent = z
 
 const DiaryDataArray = DiaryEvent.array();
 
+const UserLogin = z
+  .object({
+    email: StringData,
+    password: StringData,
+  })
+  .strict();
+
+const UserData = z
+  .object({
+    email: StringData,
+    password: StringData,
+    objectCollection: StringData,
+    imageCollection: StringData,
+  })
+  .strict();
+
 export {
   StringData,
   StringDataArray,
@@ -73,4 +89,6 @@ export {
   ImageIdArray,
   DiaryEvent,
   DiaryDataArray,
+  UserLogin,
+  UserData,
 };
