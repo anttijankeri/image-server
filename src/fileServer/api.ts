@@ -1,6 +1,6 @@
 import path from "path";
 
-const FILE_SERVER_IMAGE_PATH = "http://localhost:3000/images/";
+const FILE_SERVER_IMAGE_PATH = "http://localhost:4567/images/";
 
 export const fetchImage = async (filePath: string) => {
   try {

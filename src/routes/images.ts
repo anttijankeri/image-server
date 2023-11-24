@@ -2,7 +2,7 @@ import express from "express";
 import { getImagesDb } from "../db";
 import { ObjectId } from "mongodb";
 import { validateImage, validateImagePartial } from "../data_types/validation";
-import { fetchImage, postImage, deleteImage } from "../fileServer/apiCalls";
+import { fetchImage, postImage, deleteImage } from "../fileServer/api";
 
 const router = express.Router();
 

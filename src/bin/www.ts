@@ -14,7 +14,7 @@ const connect = async () => {
   }
 };
 
-const port = normalizePort(process.env.PORT || "3000");
+const port = normalizePort("3456");
 app.set("port", port);
 
 const server = createServer(app);
