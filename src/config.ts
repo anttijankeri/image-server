@@ -30,9 +30,9 @@ export const ConfigObjectSchema = z.object({
   dateLastFlower: dataTypes.DateData,
   dateRemoved: dataTypes.DateData,
 
-  images: dataTypes.ImageIdArray,
   events: dataTypes.DiaryDataArray,
 
   // -----------------------------------
   // ^^^^ DATATYPES ABOVE THIS LINE ^^^^
+  // ADDING IMAGES MAY BLOW UP THE DATABASE
 });

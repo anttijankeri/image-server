@@ -1,10 +1,12 @@
-import * as dataTypes from ".";
+import * as dataTypes from "./index";
+import * as imageTypes from "./images";
 import { ConfigObjectSchema } from "../config";
 import z from "zod";
 
 export const DataObjectSchema = ConfigObjectSchema.extend({
   shared: dataTypes.BooleanData,
   dateAdded: dataTypes.DateData,
+  images: imageTypes.ImageIdArray,
 });
 
 export const DataObjectSchemaStrict = DataObjectSchema.strict();
@@ -13,7 +15,7 @@ export const DataObjectSchemaPartial = DataObjectSchemaStrict.partial();
 
 export type DataObject = z.infer<typeof DataObjectSchemaStrict>;
 
-export const ImageDataSchema = dataTypes.ImageData;
+export const ImageDataSchema = imageTypes.ImageData;
 
 export const ImageDataSchemaPartial = ImageDataSchema.partial();
 
