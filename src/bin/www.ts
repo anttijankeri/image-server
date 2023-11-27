@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-import app from "../app";
+import app from "../app.js";
 // import debug from "debug";
 import { createServer } from "http";
-import { connectToDbs } from "../db";
+import { connectToDbs } from "../db.js";
 
 const connect = async () => {
   try {

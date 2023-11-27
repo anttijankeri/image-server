@@ -1,5 +1,5 @@
 import express from "express";
-import { validateUser } from "../data_types/validation";
+import { validateUser } from "../data_types/validation.js";
 
 const router = express.Router();
 
@@ -11,11 +11,8 @@ router.post("/login", async (req, res) => {
     return res.status(400).json(validate.error);
   }
 
-  // const db = getUsersDb();
-  // const data = await db
   //   .collection("User_list")
   //   .findOne({ email: body.email });
-
   // if (data) {
   //   const hash = hashPassword(body.password);
   //   return res.json(data);

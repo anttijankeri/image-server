@@ -1,19 +1,15 @@
 import z from "zod";
 import * as dataTypes from "./index.js";
-
 const ImageData = z
-  .object({
+    .object({
     // will also have filePath: StringData from server
     shared: dataTypes.BooleanData,
     userText: dataTypes.StringData,
     userGroup: dataTypes.StringData,
     objectLink: dataTypes.MongoId,
     dateAdded: dataTypes.DateData,
-  })
-  .strict();
-
+})
+    .strict();
 const ImageId = dataTypes.MongoId;
-
 const ImageIdArray = ImageId.array();
-
 export { ImageData, ImageId, ImageIdArray };

@@ -1,6 +1,6 @@
 import express from "express";
-import { SHARING_ALLOWED } from "../config";
-import { getImagesDb, getObjectsDb } from "../db";
+import { SHARING_ALLOWED } from "../config.js";
+import { getImagesDb, getObjectsDb } from "../db.js";
 import { ObjectId } from "mongodb";
 
 const router = express.Router();

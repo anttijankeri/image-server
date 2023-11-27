@@ -1,7 +1,7 @@
 import express from "express";
-import { getObjectsDb } from "../db";
+import { getObjectsDb } from "../db.js";
 import { ObjectId } from "mongodb";
-import { validateData, validateDataPartial } from "../data_types/validation";
+import { validateData, validateDataPartial } from "../data_types/validation.js";
 
 interface LooseObject {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

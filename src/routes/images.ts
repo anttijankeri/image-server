@@ -1,11 +1,14 @@
 import express from "express";
 import fileUpload, { UploadedFile } from "express-fileupload";
 import { fileTypeFromFile } from "file-type";
-import { getImagesDb } from "../db";
+import { getImagesDb } from "../db.js";
 import { ObjectId } from "mongodb";
-import { validateImage, validateImagePartial } from "../data_types/validation";
-import { fetchImage, postImage, deleteImage } from "../fileServer/api";
-import addImageLink from "../utils/addImageLink";
+import {
+  validateImage,
+  validateImagePartial,
+} from "../data_types/validation.js";
+import { fetchImage, postImage, deleteImage } from "../fileServer/api.js";
+import addImageLink from "../utils/addImageLink.js";
 
 const router = express.Router();
 

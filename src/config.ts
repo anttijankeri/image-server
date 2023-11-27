@@ -1,4 +1,4 @@
-import * as dataTypes from "./data_types";
+import * as dataTypes from "./data_types/index.js";
 import z from "zod";
 
 export const REGISTRATION_ALLOWED = true; // Use to disable registration after creating your own username for fully private apps

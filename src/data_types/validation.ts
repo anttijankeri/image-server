@@ -1,8 +1,7 @@
-import * as dataTypes from "./index";
-import * as imageTypes from "./images";
-import { ConfigObjectSchema } from "../config";
+import * as dataTypes from "./index.js";
+import * as imageTypes from "./images.js";
+import { ConfigObjectSchema } from "../config.js";
 import z from "zod";
-import fileUpload from "express-fileupload";
 
 export const DataObjectSchema = ConfigObjectSchema.extend({
   shared: dataTypes.BooleanData,

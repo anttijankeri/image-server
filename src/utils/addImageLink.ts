@@ -1,5 +1,5 @@
 import { ObjectId } from "mongodb";
-import { getObjectsDb } from "../db";
+import { getObjectsDb } from "../db.js";
 
 const addImageLink = async (objectId: string, imageId: string) => {
   const db = getObjectsDb();

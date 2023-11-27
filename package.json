@@ -2,8 +2,13 @@
   "name": "image-server",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
+  "exports": "./dist/index.js",
+  "engines": {
+    "node": ">=16"
+  },
   "scripts": {
-    "dev": "nodemon ./src/bin/www.ts",
+    "dev": "nodemon --ext ts,json src/bin/www.js",
     "lint": "eslint ./src/**/*.ts",
     "pretest": "npm run lint",
     "test": "jest",
