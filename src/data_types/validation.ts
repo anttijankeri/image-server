@@ -2,6 +2,7 @@ import * as dataTypes from "./index";
 import * as imageTypes from "./images";
 import { ConfigObjectSchema } from "../config";
 import z from "zod";
+import fileUpload from "express-fileupload";
 
 export const DataObjectSchema = ConfigObjectSchema.extend({
   shared: dataTypes.BooleanData,

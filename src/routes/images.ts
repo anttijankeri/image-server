@@ -1,4 +1,6 @@
 import express from "express";
+import fileUpload, { UploadedFile } from "express-fileupload";
+import { fileTypeFromFile } from "file-type";
 import { getImagesDb } from "../db";
 import { ObjectId } from "mongodb";
 import { validateImage, validateImagePartial } from "../data_types/validation";
@@ -6,6 +8,20 @@ import { fetchImage, postImage, deleteImage } from "../fileServer/api";
 import addImageLink from "../utils/addImageLink";
 
 const router = express.Router();
+
+router.use(
+  fileUpload({
+    limits: {
+      fileSize: 20000000,
+    },
+    abortOnLimit: true,
+    useTempFiles: true,
+    tempFileDir: "../../temp/",
+    safeFileNames: true,
+    preserveExtension: 4,
+    parseNested: true,
+  })
+);
 
 router.get("/", async (req, res) => {
   const db = getImagesDb();
@@ -54,38 +70,55 @@ router.post("/", async (req, res) => {
     return res.status(400).json(validate.error);
   }
 
-  const postFile = await postImage(body.imageFile);
-
-  if (postFile.error) {
-    return res.status(500).send("Couldnt save image file");
-  }
-
   const { objectLink } = body;
   body.objectLink = "";
 
-  body.filePath = postFile.filePath;
+  const file = req.files?.image as UploadedFile;
+  if (!file) {
+    return res.status(400).send("Image file missing");
+  }
+
+  const type = await fileTypeFromFile(file.tempFilePath);
+  switch (type?.mime as string) {
+    case "image/jpg":
+    case "image/bmp":
+    case "image/webp":
+    case "image/png":
+      break;
+
+    default:
+      return res.status(400).send("Only images (png/bmp/webp/jpg) allowed");
+  }
+
+  const { error, postResponse } = await postImage(file.tempFilePath);
+
+  if (error) {
+    return res.status(500).send("Couldnt save image file: " + error);
+  }
+
+  body.filePath = postResponse.body.filePath;
   delete body.imageFile;
 
   const db = getImagesDb();
-  const result = await db.collection("Test_images").insertOne(body);
+  const imageAttempt = await db.collection("Test_images").insertOne(body);
 
-  if (!result.insertedId) {
+  if (!imageAttempt.insertedId) {
     return res.status(500).send("Couldnt save image data");
   }
 
-  body._id = result.insertedId;
+  body._id = imageAttempt.insertedId;
 
   if (objectLink !== "") {
     const addedObjectLink = await addImageLink(
       objectLink,
-      result.insertedId.toString()
+      imageAttempt.insertedId.toString()
     );
     const updateObject = { $set: { objectLink: addedObjectLink } };
-    const attempt = await db
+    const objectAttempt = await db
       .collection("Test_images")
-      .updateOne({ _id: new ObjectId(result.insertedId) }, updateObject);
+      .updateOne({ _id: new ObjectId(imageAttempt.insertedId) }, updateObject);
 
-    if (attempt.matchedCount === 1) {
+    if (objectAttempt.matchedCount === 1) {
       body.objectLink = addedObjectLink;
       return res.status(201).json(body);
     }
