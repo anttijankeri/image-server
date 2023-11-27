@@ -2,19 +2,19 @@ import z from "zod";
 
 const StringData = z.string();
 
-const StringDataArray = z.string().array();
+const StringDataArray = StringData.array();
 
 const BooleanData = z.boolean();
 
-const BooleanDataArray = z.boolean().array();
+const BooleanDataArray = BooleanData.array();
 
 const NumberData = z.number();
 
-const NumberDataArray = z.number().array();
+const NumberDataArray = NumberData.array();
 
-const DateData = z.date();
+const DateData = z.number();
 
-const DateDataArray = z.date().array();
+const DateDataArray = DateData.array();
 
 const DiaryEvent = z
   .object({
@@ -41,6 +41,8 @@ const UserData = z
   })
   .strict();
 
+const MongoId = z.string().regex(/^([\da-f]{24}|)$/);
+
 export {
   StringData,
   StringDataArray,
@@ -54,4 +56,5 @@ export {
   DiaryDataArray,
   UserLogin,
   UserData,
+  MongoId,
 };

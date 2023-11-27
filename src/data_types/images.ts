@@ -21,16 +21,16 @@ const ImageFile = z
 const ImageData = z
   .object({
     // will also have filePath: StringData from server
-    imageFile: ImageFile,
+    // imageFile: ImageFile,
     shared: dataTypes.BooleanData,
     userText: dataTypes.StringData,
     userGroup: dataTypes.StringData,
-    objectLink: dataTypes.StringData,
+    objectLink: dataTypes.MongoId,
     dateAdded: dataTypes.DateData,
   })
   .strict();
 
-const ImageId = z.string();
+const ImageId = dataTypes.MongoId;
 
 const ImageIdArray = ImageId.array();
 

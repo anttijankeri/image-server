@@ -69,7 +69,8 @@ router.get("/:id", async (req, res) => {
 
 router.post("/", async (req, res) => {
   const body = req.body;
-  body.dateAdded = new Date();
+  body.dateAdded = Date.now();
+  body.images = [];
 
   const validate = validateData(body);
   if (!validate.success) {
@@ -77,7 +78,14 @@ router.post("/", async (req, res) => {
   }
 
   const db = getObjectsDb();
-  await db.collection("Test_objects").insertOne(body);
+  const result = await db.collection("Test_objects").insertOne(body);
+
+  if (!result.insertedId) {
+    return res.status(500).send("Couldnt save object data");
+  }
+
+  body._id = result.insertedId;
+
   res.status(201).json(body);
 });
 

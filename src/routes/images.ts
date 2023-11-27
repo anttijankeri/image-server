@@ -3,6 +3,7 @@ import { getImagesDb } from "../db";
 import { ObjectId } from "mongodb";
 import { validateImage, validateImagePartial } from "../data_types/validation";
 import { fetchImage, postImage, deleteImage } from "../fileServer/api";
+import addImageLink from "../utils/addImageLink";
 
 const router = express.Router();
 
@@ -46,6 +47,7 @@ router.get("/file/:id", async (req, res) => {
 
 router.post("/", async (req, res) => {
   const body = req.body;
+  body.dateAdded = Date.now();
 
   const validate = validateImage(body);
   if (!validate.success) {
@@ -55,14 +57,40 @@ router.post("/", async (req, res) => {
   const postFile = await postImage(body.imageFile);
 
   if (postFile.error) {
-    return res.status(500).send("Something blew up!");
+    return res.status(500).send("Couldnt save image file");
   }
+
+  const { objectLink } = body;
+  body.objectLink = "";
 
   body.filePath = postFile.filePath;
   delete body.imageFile;
 
   const db = getImagesDb();
-  await db.collection("Test_images").insertOne(body);
+  const result = await db.collection("Test_images").insertOne(body);
+
+  if (!result.insertedId) {
+    return res.status(500).send("Couldnt save image data");
+  }
+
+  body._id = result.insertedId;
+
+  if (objectLink !== "") {
+    const addedObjectLink = await addImageLink(
+      objectLink,
+      result.insertedId.toString()
+    );
+    const updateObject = { $set: { objectLink: addedObjectLink } };
+    const attempt = await db
+      .collection("Test_images")
+      .updateOne({ _id: new ObjectId(result.insertedId) }, updateObject);
+
+    if (attempt.matchedCount === 1) {
+      body.objectLink = addedObjectLink;
+      return res.status(201).json(body);
+    }
+  }
+
   res.status(201).json(body);
 });
 
