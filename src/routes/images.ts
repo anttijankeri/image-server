@@ -9,6 +9,7 @@ import {
 } from "../data_types/validation.js";
 import { fetchImage, postImage, deleteImage } from "../fileServer/api.js";
 import addImageLink from "../utils/addImageLink.js";
+import getUserId from "../utils/getUserId.js";
 
 const router = express.Router();
 
@@ -95,9 +96,12 @@ router.post("/", async (req, res) => {
       return res.status(400).send("Only images (png/bmp/webp/jpg) allowed");
   }
 
+  const userId = getUserId();
+
   const { error, postResponse } = await postImage(
     file.tempFilePath,
-    fileFormat
+    fileFormat,
+    userId
   );
 
   if (error) {
