@@ -1,7 +1,7 @@
 import path from "path";
 import { readFile } from "fs/promises";
 
-const FILE_SERVER_IMAGE_PATH = "http://localhost:4567/images/";
+const FILE_SERVER_IMAGE_PATH = "http://localhost:4567/api/v1/images";
 
 export const fetchImage = async (filePath: string) => {
   try {
@@ -13,15 +13,20 @@ export const fetchImage = async (filePath: string) => {
   }
 };
 
-export const postImage = async (filePath: string) => {
+export const postImage = async (filePath: string, fileFormat: string) => {
   try {
     const file = await readFile(filePath, { encoding: "binary" });
+
+    const form = new FormData();
+    form.append("file", file);
+    form.append("fileFormat", fileFormat);
+
     return {
       postResponse: await fetch(FILE_SERVER_IMAGE_PATH, {
         method: "POST",
-        body: file,
+        body: form,
       }).then((data) => {
-        if (data.status !== 200) {
+        if (data.status !== 201) {
           throw new Error(data.statusText);
         }
         return data.json();

@@ -17,6 +17,7 @@ export const connectToDbs = async () => {
       deprecationErrors: true,
     },
   });
+
   await client.connect();
   usersDb = client.db("Users");
   objectsDb = client.db("Objects");

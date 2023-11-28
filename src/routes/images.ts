@@ -82,25 +82,29 @@ router.post("/", async (req, res) => {
   }
 
   const type = await fileTypeFromFile(file.tempFilePath);
+  let fileFormat;
   switch (type?.mime as string) {
-    case "image/jpg":
+    case "image/jpeg":
     case "image/bmp":
     case "image/webp":
     case "image/png":
+      fileFormat = "." + type!.ext;
       break;
 
     default:
       return res.status(400).send("Only images (png/bmp/webp/jpg) allowed");
   }
 
-  const { error, postResponse } = await postImage(file.tempFilePath);
+  const { error, postResponse } = await postImage(
+    file.tempFilePath,
+    fileFormat
+  );
 
   if (error) {
     return res.status(500).send("Couldnt save image file: " + error);
   }
 
-  body.filePath = postResponse.body.filePath;
-  delete body.imageFile;
+  body.filePath = postResponse.filePath;
 
   const db = getImagesDb();
   const imageAttempt = await db.collection("Test_images").insertOne(body);
@@ -116,12 +120,13 @@ router.post("/", async (req, res) => {
       objectLink,
       imageAttempt.insertedId.toString()
     );
+
     const updateObject = { $set: { objectLink: addedObjectLink } };
-    const objectAttempt = await db
+    const linkToObjectAttempt = await db
       .collection("Test_images")
       .updateOne({ _id: new ObjectId(imageAttempt.insertedId) }, updateObject);
 
-    if (objectAttempt.matchedCount === 1) {
+    if (linkToObjectAttempt.matchedCount === 1) {
       body.objectLink = addedObjectLink;
       return res.status(201).json(body);
     }
