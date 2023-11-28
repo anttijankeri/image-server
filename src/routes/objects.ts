@@ -74,7 +74,7 @@ router.post("/", async (req, res) => {
 
   const validate = validateData(body);
   if (!validate.success) {
-    return res.status(400).json(validate.error);
+    return res.status(400).json(validate.error.issues);
   }
 
   const db = getObjectsDb();

@@ -15,7 +15,7 @@ export const fetchImage = async (filePath: string) => {
 
 export const postImage = async (filePath: string, fileFormat: string) => {
   try {
-    const file = await readFile(filePath, { encoding: "binary" });
+    const file = await readFile(filePath, { encoding: "base64" });
 
     const form = new FormData();
     form.append("file", file);

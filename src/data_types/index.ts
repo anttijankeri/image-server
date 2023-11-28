@@ -4,7 +4,7 @@ const StringData = z.string();
 
 const StringDataArray = StringData.array();
 
-const BooleanData = z.boolean();
+const BooleanData = z.enum(["true", ""]);
 
 const BooleanDataArray = BooleanData.array();
 
