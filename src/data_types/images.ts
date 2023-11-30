@@ -8,7 +8,7 @@ const ImageData = z
     userText: dataTypes.StringData,
     userGroup: dataTypes.StringData,
     objectLink: dataTypes.MongoId,
-    dateAdded: dataTypes.DateData,
+    // dateAdded: dataTypes.DateData,
   })
   .strict();
 

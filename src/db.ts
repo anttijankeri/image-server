@@ -1,6 +1,4 @@
 import { Db, MongoClient, ServerApiVersion } from "mongodb";
-import { config } from "dotenv";
-config();
 
 let usersDb: Db;
 let objectsDb: Db;

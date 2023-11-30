@@ -5,8 +5,8 @@ import z from "zod";
 
 export const DataObjectSchema = ConfigObjectSchema.extend({
   shared: dataTypes.BooleanData,
-  dateAdded: dataTypes.DateData,
-  images: imageTypes.ImageIdArray,
+  // dateAdded: dataTypes.DateData,
+  // images: imageTypes.ImageIdArray,
 });
 
 export const DataObjectSchemaStrict = DataObjectSchema.strict();

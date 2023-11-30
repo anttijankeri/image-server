@@ -1,4 +1,5 @@
-#!/usr/bin/env node
+import { config } from "dotenv";
+config();
 
 import app from "../app.js";
 // import debug from "debug";

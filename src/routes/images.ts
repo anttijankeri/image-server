@@ -67,12 +67,13 @@ router.get("/file/:id", async (req, res) => {
 
 router.post("/", async (req, res) => {
   const body = req.body;
-  body.dateAdded = Date.now();
 
   const validate = validateImage(body);
   if (!validate.success) {
     return res.status(400).json(validate.error.issues);
   }
+
+  body.dateAdded = Date.now();
 
   const { objectLink } = body;
   body.objectLink = "";

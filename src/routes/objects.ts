@@ -69,13 +69,14 @@ router.get("/:id", async (req, res) => {
 
 router.post("/", async (req, res) => {
   const body = req.body;
-  body.dateAdded = Date.now();
-  body.images = [];
 
   const validate = validateData(body);
   if (!validate.success) {
     return res.status(400).json(validate.error.issues);
   }
+
+  body.dateAdded = Date.now();
+  body.images = [];
 
   const db = getObjectsDb();
   const result = await db.collection("Test_objects").insertOne(body);
