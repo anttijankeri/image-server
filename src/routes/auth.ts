@@ -1,7 +1,5 @@
 import express from "express";
 import { validateUser } from "../data_types/validation.js";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { firebaseAuth } from "../utils/firebase.js";
 
 const router = express.Router();
 
@@ -23,15 +21,7 @@ router.post("/signup", async (req, res) => {
   }
 
   try {
-    const userCredential = await createUserWithEmailAndPassword(
-      firebaseAuth,
-      body.email,
-      body.password
-    );
-
-    const user = userCredential.user;
-
-    res.json(user);
+    res.json(body);
   } catch (error) {
     res.status(400).send((error as Error).message);
   }
