@@ -194,7 +194,7 @@ router.patch("/:id", async (req, res, next) => {
     const body = req.body;
     const validate = validateImagePartial(body);
     if (!validate.success) {
-      return res.status(400).json(validate.error);
+      return res.status(400).json(validate.error.issues);
     }
 
     const updateObject = { $set: body };
