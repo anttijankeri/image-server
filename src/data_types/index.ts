@@ -27,8 +27,11 @@ const DiaryDataArray = DiaryEvent.array();
 
 const UserLogin = z
   .object({
-    email: StringData,
-    password: StringData,
+    email: StringData.regex(
+      /\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}\b/i,
+      "Invalid email address"
+    ),
+    password: StringData.min(6, "At least 6 characters"),
   })
   .strict();
 
