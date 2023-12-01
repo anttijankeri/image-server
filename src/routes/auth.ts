@@ -3,27 +3,31 @@ import { validateUser } from "../data_types/validation.js";
 
 const router = express.Router();
 
-router.post("/login", async (req, res) => {
-  const body = req.body;
+router.post("/login", async (req, res, next) => {
+  try {
+    const body = req.body;
 
-  const validate = validateUser(body);
-  if (!validate.success) {
-    return res.status(400).json(validate.error);
+    const validate = validateUser(body);
+    if (!validate.success) {
+      return res.status(400).json(validate.error);
+    }
+  } catch (error) {
+    next(error);
   }
 });
 
-router.post("/signup", async (req, res) => {
-  const body = req.body;
-
-  const validate = validateUser(body);
-  if (!validate.success) {
-    return res.status(400).json(validate.error);
-  }
-
+router.post("/signup", async (req, res, next) => {
   try {
+    const body = req.body;
+
+    const validate = validateUser(body);
+    if (!validate.success) {
+      return res.status(400).json(validate.error);
+    }
+
     res.json(body);
   } catch (error) {
-    res.status(400).send((error as Error).message);
+    next(error);
   }
 });
 

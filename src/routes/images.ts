@@ -27,159 +27,190 @@ router.use(
   })
 );
 
-router.get("/", async (req, res) => {
-  const db = getImagesDb();
-  const cursor = db.collection("Test_images").find();
-  const data = [];
+router.get("/", async (req, res, next) => {
+  try {
+    const db = getImagesDb();
+    const cursor = db.collection("Test_images").find();
+    const data = [];
 
-  for await (const item of cursor) {
-    data.push(item);
+    for await (const item of cursor) {
+      data.push(item);
+    }
+
+    if (data) {
+      return res.json(data);
+    }
+
+    res.status(404).send("Not found");
+  } catch (error) {
+    next(error);
   }
-
-  if (data) {
-    return res.json(data);
-  }
-
-  res.status(404).send("Not found");
 });
 
-router.get("/:id", async (req, res) => {
-  const db = getImagesDb();
-  const data = await db
-    .collection("Test_images")
-    .findOne({ _id: new ObjectId(req.params.id) });
+router.get("/:id", async (req, res, next) => {
+  try {
+    const db = getImagesDb();
+    const data = await db
+      .collection("Test_images")
+      .findOne({ _id: new ObjectId(req.params.id) });
 
-  if (data) {
-    return res.json(data);
+    if (data) {
+      return res.json(data);
+    }
+
+    res.status(404).send("Not found");
+  } catch (error) {
+    next(error);
   }
-
-  res.status(404).send("Not found");
 });
 
-router.get("/file/:id", async (req, res) => {
-  const data = await fetchImage(req.params.id);
-  if (data.error) {
-    return res.status(404).send("Not found");
-  }
+router.get("/file/:id", async (req, res, next) => {
+  try {
+    const data = await fetchImage(req.params.id);
+    if (data.error) {
+      return res.status(404).send("Not found");
+    }
 
-  res.json((data.result as Response).body);
+    res.json((data.result as Response).body);
+  } catch (error) {
+    next(error);
+  }
 });
 
-router.post("/", async (req, res) => {
-  const body = req.body;
+router.post("/", async (req, res, next) => {
+  try {
+    const body = req.body;
 
-  const validate = validateImage(body);
-  if (!validate.success) {
-    return res.status(400).json(validate.error.issues);
-  }
+    const validate = validateImage(body);
+    if (!validate.success) {
+      return res.status(400).json(validate.error.issues);
+    }
 
-  body.dateAdded = Date.now();
+    body.dateAdded = Date.now();
 
-  const { objectLink } = body;
-  body.objectLink = "";
+    const { objectLink } = body;
+    body.objectLink = "";
 
-  const file = req.files?.image as UploadedFile;
-  if (!file) {
-    return res.status(400).send("Image file missing");
-  }
+    const file = req.files?.image as UploadedFile;
+    if (!file) {
+      return res.status(400).send("Image file missing");
+    }
 
-  const type = await fileTypeFromFile(file.tempFilePath);
-  let fileFormat;
-  switch (type?.mime as string) {
-    case "image/jpeg":
-    case "image/bmp":
-    case "image/webp":
-    case "image/png":
-      fileFormat = "." + type!.ext;
-      break;
+    const type = await fileTypeFromFile(file.tempFilePath);
+    let fileFormat;
+    switch (type?.mime as string) {
+      case "image/jpeg":
+      case "image/bmp":
+      case "image/webp":
+      case "image/png":
+        fileFormat = "." + type!.ext;
+        break;
 
-    default:
-      return res.status(400).send("Only images (png/bmp/webp/jpg) allowed");
-  }
+      default:
+        return res.status(400).send("Only images (png/bmp/webp/jpg) allowed");
+    }
 
-  const userId = getUserId();
+    const userId = getUserId();
 
-  const { error, postResponse } = await postImage(
-    file.tempFilePath,
-    fileFormat,
-    userId
-  );
-
-  if (error) {
-    return res.status(500).send("Couldnt save image file: " + error);
-  }
-
-  body.filePath = postResponse.filePath;
-
-  const db = getImagesDb();
-  const imageAttempt = await db.collection("Test_images").insertOne(body);
-
-  if (!imageAttempt.insertedId) {
-    return res.status(500).send("Couldnt save image data");
-  }
-
-  body._id = imageAttempt.insertedId;
-
-  if (objectLink !== "") {
-    const addedObjectLink = await addImageLink(
-      objectLink,
-      imageAttempt.insertedId.toString()
+    const { error, postResponse } = await postImage(
+      file.tempFilePath,
+      fileFormat,
+      userId
     );
 
-    const updateObject = { $set: { objectLink: addedObjectLink } };
-    const linkToObjectAttempt = await db
-      .collection("Test_images")
-      .updateOne({ _id: new ObjectId(imageAttempt.insertedId) }, updateObject);
-
-    if (linkToObjectAttempt.matchedCount === 1) {
-      body.objectLink = addedObjectLink;
-      return res.status(201).json(body);
+    if (error) {
+      throw Error("Couldnt save image file: " + error);
     }
-  }
 
-  res.status(201).json(body);
+    body.filePath = postResponse.filePath;
+
+    const db = getImagesDb();
+    const imageAttempt = await db.collection("Test_images").insertOne(body);
+
+    if (!imageAttempt.insertedId) {
+      throw Error("Couldnt save image data");
+    }
+
+    body._id = imageAttempt.insertedId;
+
+    if (objectLink !== "") {
+      const addedObjectLink = await addImageLink(
+        objectLink,
+        imageAttempt.insertedId.toString()
+      );
+
+      const updateObject = { $set: { objectLink: addedObjectLink } };
+      const linkToObjectAttempt = await db
+        .collection("Test_images")
+        .updateOne(
+          { _id: new ObjectId(imageAttempt.insertedId) },
+          updateObject
+        );
+
+      if (linkToObjectAttempt.matchedCount === 1) {
+        body.objectLink = addedObjectLink;
+        return res.status(201).json(body);
+      }
+    }
+
+    res.status(201).json(body);
+  } catch (error) {
+    next(error);
+  }
 });
 
-router.delete("/:id", async (req, res) => {
-  const db = getImagesDb();
-  const attempt = await db
-    .collection("Test_images")
-    .deleteOne({ _id: new ObjectId(req.params.id) });
+router.delete("/:id", async (req, res, next) => {
+  try {
+    const db = getImagesDb();
+    const attempt = await db
+      .collection("Test_images")
+      .deleteOne({ _id: new ObjectId(req.params.id) });
 
-  if (attempt.deletedCount === 1) {
-    return res.status(204).send("Deleted");
+    if (attempt.deletedCount === 1) {
+      return res.status(204).send("Deleted");
+    }
+
+    res.status(404).send("Not found");
+  } catch (error) {
+    next(error);
   }
-
-  res.status(404).send("Not found");
 });
 
-router.delete("/file/:id", async (req, res) => {
-  const attempt = await deleteImage(req.params.id);
-  if (attempt.error) {
-    return res.status(404).send("Not found");
-  }
+router.delete("/file/:id", async (req, res, next) => {
+  try {
+    const attempt = await deleteImage(req.params.id);
+    if (attempt.error) {
+      return res.status(404).send("Not found");
+    }
 
-  res.json((attempt.result as Response).body);
+    res.json((attempt.result as Response).body);
+  } catch (error) {
+    next(error);
+  }
 });
 
-router.patch("/:id", async (req, res) => {
-  const body = req.body;
-  const validate = validateImagePartial(body);
-  if (!validate.success) {
-    return res.status(400).json(validate.error);
+router.patch("/:id", async (req, res, next) => {
+  try {
+    const body = req.body;
+    const validate = validateImagePartial(body);
+    if (!validate.success) {
+      return res.status(400).json(validate.error);
+    }
+
+    const updateObject = { $set: body };
+    const db = getImagesDb();
+    const attempt = await db
+      .collection("Test_images")
+      .updateOne({ _id: new ObjectId(req.params.id) }, updateObject);
+
+    if (attempt.matchedCount === 1) {
+      return res.status(204).send("Updated");
+    }
+
+    res.status(404).send("Not found");
+  } catch (error) {
+    next(error);
   }
-
-  const updateObject = { $set: body };
-  const db = getImagesDb();
-  const attempt = await db
-    .collection("Test_images")
-    .updateOne({ _id: new ObjectId(req.params.id) }, updateObject);
-
-  if (attempt.matchedCount === 1) {
-    return res.status(204).send("Updated");
-  }
-
-  res.status(404).send("Not found");
 });
 
 export default router;

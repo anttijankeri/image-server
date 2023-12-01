@@ -9,30 +9,38 @@ const isAllowed = (shared: boolean) => {
   return SHARING_ALLOWED && shared;
 };
 
-router.get("/objects/:id", async (req, res) => {
-  const db = getObjectsDb();
-  const data = await db
-    .collection("Test_objects")
-    .findOne({ _id: new ObjectId(req.params.id) });
+router.get("/objects/:id", async (req, res, next) => {
+  try {
+    const db = getObjectsDb();
+    const data = await db
+      .collection("Test_objects")
+      .findOne({ _id: new ObjectId(req.params.id) });
 
-  if (data && isAllowed(data.shared)) {
-    return res.json(data);
+    if (data && isAllowed(data.shared)) {
+      return res.json(data);
+    }
+
+    res.status(404).send("Not found");
+  } catch (error) {
+    next(error);
   }
-
-  res.status(404).send("Not found");
 });
 
-router.get("/images/:id", async (req, res) => {
-  const db = getImagesDb();
-  const data = await db
-    .collection("Test_images")
-    .findOne({ _id: new ObjectId(req.params.id) });
+router.get("/images/:id", async (req, res, next) => {
+  try {
+    const db = getImagesDb();
+    const data = await db
+      .collection("Test_images")
+      .findOne({ _id: new ObjectId(req.params.id) });
 
-  if (data && isAllowed(data.shared)) {
-    return res.json(data);
+    if (data && isAllowed(data.shared)) {
+      return res.json(data);
+    }
+
+    res.status(404).send("Not found");
+  } catch (error) {
+    next(error);
   }
-
-  res.status(404).send("Not found");
 });
 
 export default router;
