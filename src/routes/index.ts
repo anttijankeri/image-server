@@ -10,10 +10,9 @@ import dataShare from "./dataShare.js";
 const router = express.Router();
 
 router.use("/data-share", dataShare);
-router.use("/auth", auth);
-router.use("/users", users);
-router.use("/objects", objects);
-router.use("/images", images);
-router.use("/data-export", dataExport);
+router.use("/users", auth, users);
+router.use("/objects", auth, objects);
+router.use("/images", auth, images);
+router.use("/data-export", auth, dataExport);
 
 export default router;

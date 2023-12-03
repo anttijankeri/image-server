@@ -2,11 +2,13 @@ import express, { Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
 import logger from "morgan";
 import cors from "cors";
+import helmet from "helmet";
 
 import indexRouter from "./routes/index.js";
 
 const app = express();
 
+app.use(helmet());
 app.use(cors());
 app.use(logger("dev"));
 app.use(express.json());
