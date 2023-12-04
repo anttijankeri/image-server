@@ -1,4 +1,3 @@
-import path from "path";
 import { readFile } from "fs/promises";
 
 const FILE_SERVER_IMAGE_PATH = "http://localhost:4567/api/v1/images";
@@ -6,7 +5,9 @@ const FILE_SERVER_IMAGE_PATH = "http://localhost:4567/api/v1/images";
 export const fetchImage = async (filePath: string) => {
   try {
     return {
-      result: await fetch(path.resolve(FILE_SERVER_IMAGE_PATH, filePath)),
+      result: await fetch(FILE_SERVER_IMAGE_PATH, {
+        headers: { filePath },
+      }),
     };
   } catch (error) {
     return { error };
@@ -45,8 +46,9 @@ export const postImage = async (
 export const deleteImage = async (filePath: string) => {
   try {
     return {
-      result: await fetch(path.resolve(FILE_SERVER_IMAGE_PATH, filePath), {
+      result: await fetch(FILE_SERVER_IMAGE_PATH, {
         method: "DELETE",
+        headers: { filePath },
       }),
     };
   } catch (error) {

@@ -3,12 +3,10 @@ import * as dataTypes from "./index.js";
 
 const ImageData = z
   .object({
-    // will also have filePath: StringData from server
     shared: dataTypes.BooleanData,
     userText: dataTypes.StringData,
     userGroup: dataTypes.StringData,
     objectLink: dataTypes.MongoId,
-    // dateAdded: dataTypes.DateData,
   })
   .strict();
 

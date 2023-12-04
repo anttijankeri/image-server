@@ -9,6 +9,7 @@ import {
 } from "../data_types/validation.js";
 import { fetchImage, postImage, deleteImage } from "../fileServer/api.js";
 import addImageLink from "../utils/addImageLink.js";
+import removeImageLink from "../utils/removeImageLink.js";
 
 const router = express.Router();
 
@@ -29,7 +30,7 @@ router.use(
 router.get("/", async (req, res, next) => {
   try {
     const db = getImagesDb();
-    const cursor = db.collection("Test_images").find();
+    const cursor = db.collection(req.headers.userFolder as string).find();
     const data = [];
 
     for await (const item of cursor) {
@@ -50,7 +51,7 @@ router.get("/:id", async (req, res, next) => {
   try {
     const db = getImagesDb();
     const data = await db
-      .collection("Test_images")
+      .collection(req.headers.userFolder as string)
       .findOne({ _id: new ObjectId(req.params.id) });
 
     if (data) {
@@ -65,12 +66,29 @@ router.get("/:id", async (req, res, next) => {
 
 router.get("/file/:id", async (req, res, next) => {
   try {
-    const data = await fetchImage(req.params.id);
-    if (data.error) {
+    const userFolder = req.headers.userFolder as string;
+
+    const db = getImagesDb();
+
+    const data = await db
+      .collection(userFolder)
+      .findOne({ _id: new ObjectId(req.params.id) });
+
+    if (!data) {
       return res.status(404).send("Not found");
     }
 
-    res.json((data.result as Response).body);
+    const filePath = data.filePath;
+
+    console.log(filePath);
+    const file = await fetchImage(filePath);
+    if (file.error) {
+      return res.status(404).send("Not found");
+    }
+
+    const result = file.result as Response;
+    console.log(result);
+    res.send(result);
   } catch (error) {
     next(error);
   }
@@ -109,12 +127,12 @@ router.post("/", async (req, res, next) => {
         return res.status(400).send("Only images (png/bmp/webp/jpg) allowed");
     }
 
-    const userId = req.headers.userFolder as string;
+    const userFolder = req.headers.userFolder as string;
 
     const { error, postResponse } = await postImage(
       file.tempFilePath,
       fileFormat,
-      userId
+      userFolder
     );
 
     if (error) {
@@ -124,7 +142,7 @@ router.post("/", async (req, res, next) => {
     body.filePath = postResponse.filePath;
 
     const db = getImagesDb();
-    const imageAttempt = await db.collection("Test_images").insertOne(body);
+    const imageAttempt = await db.collection(userFolder).insertOne(body);
 
     if (!imageAttempt.insertedId) {
       throw Error("Couldnt save image data");
@@ -135,12 +153,13 @@ router.post("/", async (req, res, next) => {
     if (objectLink !== "") {
       const addedObjectLink = await addImageLink(
         objectLink,
-        imageAttempt.insertedId.toString()
+        imageAttempt.insertedId.toString(),
+        userFolder
       );
 
       const updateObject = { $set: { objectLink: addedObjectLink } };
       const linkToObjectAttempt = await db
-        .collection("Test_images")
+        .collection(userFolder)
         .updateOne(
           { _id: new ObjectId(imageAttempt.insertedId) },
           updateObject
@@ -148,7 +167,6 @@ router.post("/", async (req, res, next) => {
 
       if (linkToObjectAttempt.matchedCount === 1) {
         body.objectLink = addedObjectLink;
-        return res.status(201).json(body);
       }
     }
 
@@ -160,29 +178,33 @@ router.post("/", async (req, res, next) => {
 
 router.delete("/:id", async (req, res, next) => {
   try {
-    const db = getImagesDb();
-    const attempt = await db
-      .collection("Test_images")
-      .deleteOne({ _id: new ObjectId(req.params.id) });
+    const userFolder = req.headers.userFolder as string;
+    const id = req.params.id;
 
-    if (attempt.deletedCount === 1) {
-      return res.status(204).send("Deleted");
+    const db = getImagesDb();
+
+    const data = await db
+      .collection(userFolder)
+      .findOne({ _id: new ObjectId(id) });
+
+    if (!data) {
+      return res.status(404).send("Not found");
     }
 
-    res.status(404).send("Not found");
-  } catch (error) {
-    next(error);
-  }
-});
-
-router.delete("/file/:id", async (req, res, next) => {
-  try {
-    const attempt = await deleteImage(req.params.id);
+    const attempt = await deleteImage(data.filePath);
     if (attempt.error) {
       return res.status(404).send("Not found");
     }
 
-    res.json((attempt.result as Response).body);
+    const objectLink = data.objectLink;
+
+    if (objectLink !== "") {
+      removeImageLink(objectLink, id, userFolder);
+    }
+
+    await db.collection(userFolder).deleteOne({ _id: new ObjectId(id) });
+
+    res.status(204).send("Deleted");
   } catch (error) {
     next(error);
   }
@@ -196,17 +218,34 @@ router.patch("/:id", async (req, res, next) => {
       return res.status(400).json(validate.error.issues);
     }
 
-    const updateObject = { $set: body };
-    const db = getImagesDb();
-    const attempt = await db
-      .collection("Test_images")
-      .updateOne({ _id: new ObjectId(req.params.id) }, updateObject);
+    const userFolder = req.headers.userFolder as string;
+    const id = req.params.id;
 
-    if (attempt.matchedCount === 1) {
-      return res.status(204).send("Updated");
+    const db = getImagesDb();
+    const data = await db
+      .collection(userFolder)
+      .findOne({ _id: new ObjectId(id) });
+
+    if (!data) {
+      return res.status(404).send("Not found");
     }
 
-    res.status(404).send("Not found");
+    if (data.objectLink !== body.objectLink) {
+      if (data.objectLink !== "") {
+        removeImageLink(data.objectLink, id, userFolder);
+      }
+
+      if (body.objectLink !== "") {
+        addImageLink(body.objectLink, id, userFolder);
+      }
+    }
+
+    const updateObject = { $set: body };
+    await db
+      .collection(userFolder)
+      .updateOne({ _id: new ObjectId(id) }, updateObject);
+
+    res.status(204).send("Updated");
   } catch (error) {
     next(error);
   }

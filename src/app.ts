@@ -9,8 +9,8 @@ import indexRouter from "./routes/index.js";
 const app = express();
 
 app.use(helmet());
-app.use(cors());
 app.use(logger("dev"));
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -26,6 +26,11 @@ const errorHandler = (
   if (res.headersSent) {
     return next(err);
   }
+
+  if (err.message === "Unauthorized") {
+    return res.status(401).send(err.message);
+  }
+
   res.status(500).send(err.message);
 };
 

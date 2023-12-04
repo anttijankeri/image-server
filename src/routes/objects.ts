@@ -1,5 +1,5 @@
 import express from "express";
-import { getObjectsDb } from "../db.js";
+import { getImagesDb, getObjectsDb } from "../db.js";
 import { ObjectId } from "mongodb";
 import { validateData, validateDataPartial } from "../data_types/validation.js";
 
@@ -13,7 +13,7 @@ const router = express.Router();
 router.get("/", async (req, res, next) => {
   try {
     const db = getObjectsDb();
-    const cursor = db.collection("Test_objects").find();
+    const cursor = db.collection(req.headers.userFolder as string).find();
     const data = [];
 
     for await (const item of cursor) {
@@ -45,7 +45,9 @@ router.get("/search", async (req, res, next) => {
     });
 
     const db = getObjectsDb();
-    const cursor = db.collection("Test_objects").find(queryObject);
+    const cursor = db
+      .collection(req.headers.userFolder as string)
+      .find(queryObject);
     const data = [];
 
     for await (const item of cursor) {
@@ -66,7 +68,7 @@ router.get("/:id", async (req, res, next) => {
   try {
     const db = getObjectsDb();
     const data = await db
-      .collection("Test_objects")
+      .collection(req.headers.userFolder as string)
       .findOne({ _id: new ObjectId(req.params.id) });
 
     if (data) {
@@ -92,7 +94,9 @@ router.post("/", async (req, res, next) => {
     body.images = [];
 
     const db = getObjectsDb();
-    const result = await db.collection("Test_objects").insertOne(body);
+    const result = await db
+      .collection(req.headers.userFolder as string)
+      .insertOne(body);
 
     if (!result.insertedId) {
       throw Error("Couldnt save object data");
@@ -108,16 +112,32 @@ router.post("/", async (req, res, next) => {
 
 router.delete("/:id", async (req, res, next) => {
   try {
-    const db = getObjectsDb();
-    const attempt = await db
-      .collection("Test_objects")
-      .deleteOne({ _id: new ObjectId(req.params.id) });
+    const id = req.params.id;
 
-    if (attempt.deletedCount === 1) {
-      return res.status(204).send("Deleted");
+    const db = getObjectsDb();
+    const data = await db
+      .collection(req.headers.userFolder as string)
+      .findOne({ _id: new ObjectId(id) });
+
+    if (!data) {
+      return res.status(404).send("Not found");
     }
 
-    res.status(404).send("Not found");
+    if (data.images.length > 0) {
+      const iDb = getImagesDb();
+      const updateObject = { $set: { objectLink: "" } };
+      for await (const image of data.images) {
+        await iDb
+          .collection(req.headers.userFolder as string)
+          .updateOne({ _id: new ObjectId(image) }, updateObject);
+      }
+    }
+
+    await db
+      .collection(req.headers.userFolder as string)
+      .deleteOne({ _id: new ObjectId(id) });
+
+    res.status(204).send("Deleted");
   } catch (error) {
     next(error);
   }
@@ -135,7 +155,7 @@ router.patch("/:id", async (req, res, next) => {
     const updateObject = { $set: body };
     const db = getObjectsDb();
     const attempt = await db
-      .collection("Test_objects")
+      .collection(req.headers.userFolder as string)
       .updateOne({ _id: new ObjectId(req.params.id) }, updateObject);
 
     if (attempt.matchedCount === 1) {

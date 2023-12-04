@@ -9,11 +9,11 @@ const isAllowed = (shared: boolean) => {
   return SHARING_ALLOWED && shared;
 };
 
-router.get("/objects/:id", async (req, res, next) => {
+router.get("/objects/:userFolder/:id", async (req, res, next) => {
   try {
     const db = getObjectsDb();
     const data = await db
-      .collection("Test_objects")
+      .collection(req.params.userFolder)
       .findOne({ _id: new ObjectId(req.params.id) });
 
     if (data && isAllowed(data.shared)) {
@@ -26,11 +26,11 @@ router.get("/objects/:id", async (req, res, next) => {
   }
 });
 
-router.get("/images/:id", async (req, res, next) => {
+router.get("/images/:userFolder/:id", async (req, res, next) => {
   try {
     const db = getImagesDb();
     const data = await db
-      .collection("Test_images")
+      .collection(req.params.userFolder)
       .findOne({ _id: new ObjectId(req.params.id) });
 
     if (data && isAllowed(data.shared)) {
