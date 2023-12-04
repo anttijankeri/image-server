@@ -10,12 +10,11 @@ const checkJwt = auth({
 });
 
 router.use(checkJwt, (req, res, next) => {
-  const headerId = req.headers["x-user-id"] as string;
-  if (req.auth?.payload.sub != headerId) {
+  if (!req.auth?.payload.sub) {
     return res.status(401).send("Invalid authorization");
   }
 
-  req.headers.userFolder = getUserFolder(headerId);
+  req.headers.userFolder = getUserFolder(req.auth.payload.sub);
 
   next();
 });

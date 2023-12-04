@@ -19,10 +19,10 @@ export const postImage = async (
   userId: string
 ) => {
   try {
-    const file = await readFile(filePath, { encoding: "base64" });
+    const file = await readFile(filePath);
 
     const form = new FormData();
-    form.append("file", file);
+    form.append("file", new Blob([file]));
     form.append("format", format);
     form.append("folder", userId);
 
