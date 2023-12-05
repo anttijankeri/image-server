@@ -3,9 +3,8 @@ import { getImagesDb, getObjectsDb } from "../db.js";
 import { ObjectId } from "mongodb";
 import { validateData, validateDataPartial } from "../data_types/validation.js";
 
-interface LooseObject {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any;
+interface RegexQueryObject {
+  [key: string]: { $regex: RegExp };
 }
 
 const router = express.Router();
@@ -32,14 +31,12 @@ router.get("/", async (req, res, next) => {
 
 router.get("/search", async (req, res, next) => {
   try {
-    const query = req.query;
-    const queryObject = {} as LooseObject;
+    const queryObject = {} as RegexQueryObject;
 
-    Object.keys(req.query).forEach((key) => {
-      const value = query[key];
+    Object.entries(req.query).forEach(([key, value]) => {
       if (value) {
         return (queryObject[key] = {
-          $regex: new RegExp(query[key] as string, "i"),
+          $regex: new RegExp(value as string, "i"),
         });
       }
     });
@@ -90,6 +87,12 @@ router.post("/", async (req, res, next) => {
       return res.status(400).json(validate.error.issues);
     }
 
+    const searchStrings: string[] = [];
+    Object.values(body).forEach((value) => {
+      searchStrings.push(value as string);
+    });
+
+    body.searchString = searchStrings.join("&");
     body.dateAdded = Date.now();
     body.images = [];
 
@@ -146,23 +149,38 @@ router.delete("/:id", async (req, res, next) => {
 router.patch("/:id", async (req, res, next) => {
   try {
     const body = req.body;
+    const id = req.params.id;
 
     const validate = validateDataPartial(body);
     if (!validate.success) {
       return res.status(400).json(validate.error.issues);
     }
 
-    const updateObject = { $set: body };
     const db = getObjectsDb();
-    const attempt = await db
+    const data = await db
       .collection(req.headers.userFolder as string)
-      .updateOne({ _id: new ObjectId(req.params.id) }, updateObject);
+      .findOne({ _id: new ObjectId(id) });
 
-    if (attempt.matchedCount === 1) {
-      return res.status(204).send("Updated");
+    if (!data) {
+      res.status(404).send("Not found");
     }
 
-    res.status(404).send("Not found");
+    const combinedData = { ...data, ...body, searchStrings: null };
+    const searchStrings: string[] = [];
+    Object.values(combinedData).forEach((value) => {
+      if (typeof value === "string") {
+        searchStrings.push(value as string);
+      }
+    });
+
+    body.searchString = searchStrings.join("&");
+
+    const updateObject = { $set: body };
+    await db
+      .collection(req.headers.userFolder as string)
+      .updateOne({ _id: new ObjectId(id) }, updateObject);
+
+    res.status(204).send("Updated");
   } catch (error) {
     next(error);
   }
