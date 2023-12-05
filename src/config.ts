@@ -1,10 +1,9 @@
 import * as dataTypes from "./data_types/index.js";
-import z from "zod";
 
 export const REGISTRATION_ALLOWED = true; // Use to disable registration after creating your own username for fully private apps
 export const SHARING_ALLOWED = true; // Use to disable sharing of images for unauthenticated users
 
-export const ConfigObjectSchema = z.object({
+export const ConfigObject = {
   // ADD YOUR OWN DATA TYPES HERE
   // USE TYPES IN DATA_TYPES/INDEX.TS
   // VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVvV
@@ -35,4 +34,4 @@ export const ConfigObjectSchema = z.object({
   // -----------------------------------
   // ^^^^ DATATYPES ABOVE THIS LINE ^^^^
   // ADDING IMAGES MAY BLOW UP THE DATABASE
-});
+};

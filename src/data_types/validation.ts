@@ -1,9 +1,10 @@
 import * as dataTypes from "./index.js";
 import * as imageTypes from "./images.js";
-import { ConfigObjectSchema } from "../config.js";
-import z from "zod";
+import { ConfigObject } from "../config.js";
+import z, { ZodString } from "zod";
 
-export const DataObjectSchema = ConfigObjectSchema.extend({
+export const DataObjectSchema = z.object({
+  ...ConfigObject,
   shared: dataTypes.BooleanData,
 });
 
@@ -45,4 +46,8 @@ export const validateImagePartial = (image: ImageObject) => {
 
 export const validateUser = (user: UserObject) => {
   return UserObjectSchema.safeParse(user);
+};
+
+export const isStringValue = (key: string) => {
+  return ConfigObject[key as keyof typeof ConfigObject] instanceof ZodString;
 };

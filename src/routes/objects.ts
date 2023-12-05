@@ -1,7 +1,11 @@
 import express from "express";
 import { getImagesDb, getObjectsDb } from "../db.js";
 import { ObjectId } from "mongodb";
-import { validateData, validateDataPartial } from "../data_types/validation.js";
+import {
+  isStringValue,
+  validateData,
+  validateDataPartial,
+} from "../data_types/validation.js";
 
 interface RegexQueryObject {
   [key: string]: { $regex: RegExp };
@@ -88,8 +92,10 @@ router.post("/", async (req, res, next) => {
     }
 
     const searchStrings: string[] = [];
-    Object.values(body).forEach((value) => {
-      searchStrings.push(value as string);
+    Object.entries(body).forEach(([key, value]) => {
+      if (isStringValue(key)) {
+        searchStrings.push(value as string);
+      }
     });
 
     body.searchString = searchStrings.join("&");
@@ -165,10 +171,10 @@ router.patch("/:id", async (req, res, next) => {
       res.status(404).send("Not found");
     }
 
-    const combinedData = { ...data, ...body, searchStrings: null };
+    const combinedData = { ...data, ...body };
     const searchStrings: string[] = [];
-    Object.values(combinedData).forEach((value) => {
-      if (typeof value === "string") {
+    Object.entries(combinedData).forEach(([key, value]) => {
+      if (isStringValue(key)) {
         searchStrings.push(value as string);
       }
     });
