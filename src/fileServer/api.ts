@@ -2,11 +2,25 @@ import { readFile } from "fs/promises";
 
 const FILE_SERVER_IMAGE_PATH = "http://localhost:4567/api/v1/images";
 
-export const fetchImage = async (userFolder: string, fileName: string) => {
+export const fetchImage = async ({
+  userFolder,
+  fileName,
+  fileMime,
+}: {
+  userFolder: string;
+  fileName: string;
+  fileMime: string;
+}) => {
   try {
     return {
       result: await fetch(FILE_SERVER_IMAGE_PATH, {
-        headers: { userFolder, fileName },
+        method: "GET",
+        headers: { userFolder, fileName, fileMime },
+      }).then((data) => {
+        if (!data.ok) {
+          throw new Error(data.statusText);
+        }
+        return data;
       }),
     };
   } catch (error) {
@@ -20,6 +34,11 @@ export const deleteImage = async (userFolder: string, fileName: string) => {
       result: await fetch(FILE_SERVER_IMAGE_PATH, {
         method: "DELETE",
         headers: { userFolder, fileName },
+      }).then((data) => {
+        if (!data.ok) {
+          throw new Error(data.statusText);
+        }
+        return data.json();
       }),
     };
   } catch (error) {
@@ -45,7 +64,7 @@ export const postImage = async (
         method: "POST",
         body: form,
       }).then((data) => {
-        if (data.status !== 201) {
+        if (!data.ok) {
           throw new Error(data.statusText);
         }
         return data.json();

@@ -2,7 +2,7 @@ import express from "express";
 import fileUpload, { UploadedFile } from "express-fileupload";
 import { fileTypeFromFile } from "file-type";
 import { getImagesDb } from "../db.js";
-import { ObjectId } from "mongodb";
+import { Document, ObjectId, WithId } from "mongodb";
 import {
   validateImage,
   validateImagePartial,
@@ -10,6 +10,7 @@ import {
 import { fetchImage, postImage, deleteImage } from "../fileServer/api.js";
 import addImageLink from "../utils/addImageLink.js";
 import removeImageLink from "../utils/removeImageLink.js";
+import { Readable, pipeline } from "stream";
 
 const router = express.Router();
 
@@ -31,7 +32,7 @@ router.get("/", async (req, res, next) => {
   try {
     const db = getImagesDb();
     const cursor = db.collection(req.headers.userFolder as string).find();
-    const data = [];
+    const data: WithId<Document>[] = [];
 
     for await (const item of cursor) {
       data.push(item);
@@ -78,16 +79,26 @@ router.get("/file/:id", async (req, res, next) => {
       return res.status(404).send("Not found");
     }
 
-    const fileName = data.fileName;
+    const { fileName, fileMime } = data;
 
-    const file = await fetchImage(userFolder, fileName);
-    if (file.error) {
+    const fetch = await fetchImage({ userFolder, fileName, fileMime });
+    if (fetch.error) {
       return res.status(404).send("Not found");
     }
 
-    const result = file.result as Response;
-    console.log(result);
-    res.send(result);
+    const response = fetch.result!;
+
+    const headers = response.headers;
+    res.writeHead(200, {
+      "Content-Type": headers.get("Content-Type") as string,
+      "Content-Length": headers.get("Content-Length") as string,
+    });
+
+    pipeline(response.body as unknown as Readable, res, (error) => {
+      if (error) {
+        throw Error;
+      }
+    });
   } catch (error) {
     next(error);
   }
@@ -139,6 +150,7 @@ router.post("/", async (req, res, next) => {
     }
 
     body.fileName = postResponse.fileName;
+    body.fileMime = type!.mime;
 
     const db = getImagesDb();
     const imageAttempt = await db.collection(userFolder).insertOne(body);
