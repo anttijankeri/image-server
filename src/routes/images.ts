@@ -78,10 +78,9 @@ router.get("/file/:id", async (req, res, next) => {
       return res.status(404).send("Not found");
     }
 
-    const filePath = data.filePath;
+    const fileName = data.fileName;
 
-    console.log(filePath);
-    const file = await fetchImage(filePath);
+    const file = await fetchImage(userFolder, fileName);
     if (file.error) {
       return res.status(404).send("Not found");
     }
@@ -139,7 +138,7 @@ router.post("/", async (req, res, next) => {
       throw Error("Couldnt save image file: " + error);
     }
 
-    body.filePath = postResponse.filePath;
+    body.fileName = postResponse.fileName;
 
     const db = getImagesDb();
     const imageAttempt = await db.collection(userFolder).insertOne(body);
@@ -191,7 +190,9 @@ router.delete("/:id", async (req, res, next) => {
       return res.status(404).send("Not found");
     }
 
-    const attempt = await deleteImage(data.filePath);
+    const fileName = data.fileName;
+
+    const attempt = await deleteImage(userFolder, fileName);
     if (attempt.error) {
       return res.status(404).send("Not found");
     }

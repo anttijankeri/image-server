@@ -2,11 +2,24 @@ import { readFile } from "fs/promises";
 
 const FILE_SERVER_IMAGE_PATH = "http://localhost:4567/api/v1/images";
 
-export const fetchImage = async (filePath: string) => {
+export const fetchImage = async (userFolder: string, fileName: string) => {
   try {
     return {
       result: await fetch(FILE_SERVER_IMAGE_PATH, {
-        headers: { filePath },
+        headers: { userFolder, fileName },
+      }),
+    };
+  } catch (error) {
+    return { error };
+  }
+};
+
+export const deleteImage = async (userFolder: string, fileName: string) => {
+  try {
+    return {
+      result: await fetch(FILE_SERVER_IMAGE_PATH, {
+        method: "DELETE",
+        headers: { userFolder, fileName },
       }),
     };
   } catch (error) {
@@ -15,12 +28,12 @@ export const fetchImage = async (filePath: string) => {
 };
 
 export const postImage = async (
-  filePath: string,
+  tempFile: string,
   format: string,
   userId: string
 ) => {
   try {
-    const file = await readFile(filePath);
+    const file = await readFile(tempFile);
 
     const form = new FormData();
     form.append("file", new Blob([file]));
@@ -36,19 +49,6 @@ export const postImage = async (
           throw new Error(data.statusText);
         }
         return data.json();
-      }),
-    };
-  } catch (error) {
-    return { error };
-  }
-};
-
-export const deleteImage = async (filePath: string) => {
-  try {
-    return {
-      result: await fetch(FILE_SERVER_IMAGE_PATH, {
-        method: "DELETE",
-        headers: { filePath },
       }),
     };
   } catch (error) {
