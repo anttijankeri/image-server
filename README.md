@@ -6,7 +6,7 @@ This repo specifically is used to fetch files from the [anttijankeri/object-imag
 
 ## CONFIG
 
-The `src/config.ts` contains all the user customization for the repo. Use the commented area to customize your dataobject, using the data types from `src/data_types/index.ts`. Each data object created via the API will be saved in the database for the user. You also need to add a `.env` file at the root with `URI = "your mongodb string here"` and `USER_SALT="bunch of random letters here"` as the content. Or as env variables on your deployment platform of choice!
+The `src/config.ts` contains all the user customization for the repo. Use the commented area to customize your dataobject, using the data types from `src/data_types/index.ts`. Each data object created via the API will be saved in the database for the user. You also need to rename the .env.example into .env and insert your own variables/strings to the file. Or add them as env variables on your deployment platform of choice!
 
 ### API CALLS
 
