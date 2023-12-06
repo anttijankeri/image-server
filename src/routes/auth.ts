@@ -5,9 +5,11 @@ import getUserFolder from "../utils/getUserFolder.js";
 const router = express.Router();
 
 const checkJwt = auth({
-  audience: "https://dev-psenso4mglnfpj8o.eu.auth0.com/api/v2/",
-  issuerBaseURL: `https://dev-psenso4mglnfpj8o.eu.auth0.com/`,
+  audience: process.env.AUTH0_APP + "/api/v2/",
+  issuerBaseURL: process.env.AUTH0_APP,
 });
+
+console.log(process.env.AUTH0_APP + "/api/v2/");
 
 router.use(checkJwt, (req, res, next) => {
   if (!req.auth?.payload.sub) {

@@ -1,6 +1,6 @@
 import { readFile } from "fs/promises";
 
-const FILE_SERVER_IMAGE_PATH = "http://localhost:4567/api/v1/images";
+const fileServerUrl = process.env.FILE_SERVER_URL as string;
 
 export const fetchImage = async ({
   userFolder,
@@ -13,7 +13,7 @@ export const fetchImage = async ({
 }) => {
   try {
     return {
-      result: await fetch(FILE_SERVER_IMAGE_PATH, {
+      result: await fetch(fileServerUrl, {
         method: "GET",
         headers: { userFolder, fileName, fileMime },
       }).then((data) => {
@@ -31,7 +31,7 @@ export const fetchImage = async ({
 export const deleteImage = async (userFolder: string, fileName: string) => {
   try {
     return {
-      result: await fetch(FILE_SERVER_IMAGE_PATH, {
+      result: await fetch(fileServerUrl, {
         method: "DELETE",
         headers: { userFolder, fileName },
       }).then((data) => {
@@ -60,7 +60,7 @@ export const postImage = async (
     form.append("folder", userId);
 
     return {
-      postResponse: await fetch(FILE_SERVER_IMAGE_PATH, {
+      postResponse: await fetch(fileServerUrl, {
         method: "POST",
         body: form,
       }).then((data) => {
