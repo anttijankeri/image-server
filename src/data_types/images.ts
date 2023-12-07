@@ -1,17 +1,16 @@
 import z from "zod";
-import * as dataTypes from "./index.js";
+import * as dataTypes from "./object.js";
+import * as miscTypes from "./misc.js";
 
-const ImageData = z
+export const ImageData = z
   .object({
     shared: dataTypes.BooleanData,
     userText: dataTypes.StringData,
     userGroup: dataTypes.StringData,
-    objectLink: dataTypes.MongoId,
+    objectLink: miscTypes.MongoId,
   })
   .strict();
 
-const ImageId = dataTypes.MongoId;
+export const ImageId = miscTypes.MongoId;
 
-const ImageIdArray = ImageId.array();
-
-export { ImageData, ImageId, ImageIdArray };
+export const ImageIdArray = ImageId.array();

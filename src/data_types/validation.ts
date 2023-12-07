@@ -1,4 +1,4 @@
-import * as dataTypes from "./index.js";
+import * as dataTypes from "./object.js";
 import * as imageTypes from "./images.js";
 import { ConfigObject } from "../config.js";
 import z, { ZodString } from "zod";
@@ -20,10 +20,6 @@ export const ImageDataSchemaPartial = ImageDataSchema.partial();
 
 export type ImageObject = z.infer<typeof ImageDataSchema>;
 
-export const UserObjectSchema = dataTypes.UserLogin;
-
-export type UserObject = z.infer<typeof UserObjectSchema>;
-
 export const validateData = (data: DataObject) => {
   return DataObjectSchema.safeParse(data);
 };
@@ -42,10 +38,6 @@ export const validateImage = (image: ImageObject) => {
 
 export const validateImagePartial = (image: ImageObject) => {
   return ImageDataSchemaPartial.safeParse(image);
-};
-
-export const validateUser = (user: UserObject) => {
-  return UserObjectSchema.safeParse(user);
 };
 
 export const isStringValue = (key: string) => {
