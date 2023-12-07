@@ -9,8 +9,6 @@ const checkJwt = auth({
   issuerBaseURL: process.env.AUTH0_APP,
 });
 
-console.log(process.env.AUTH0_APP + "/api/v2/");
-
 router.use(checkJwt, (req, res, next) => {
   if (!req.auth?.payload.sub) {
     return res.status(401).send("Invalid authorization");
